@@ -29,34 +29,37 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   };
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-lg space-y-4">
-      <h2 className="text-xl font-bold mb-4">Tennis Serve Simulator</h2>
+    <div className="bg-white p-4 rounded-lg shadow-lg space-y-3">
+      <h2 className="text-xl font-bold mb-3">Tennis Serve Simulator</h2>
       
-      {/* Server Height */}
+      {/* Player Height */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Server Height: {params.serverHeight.toFixed(1)} ft
+          Player Height: {params.playerHeight.toFixed(1)} ft
         </label>
         <input
           type="range"
-          min="5"
-          max="8"
+          min="4.5"
+          max="7.5"
           step="0.1"
-          value={params.serverHeight}
-          onChange={(e) => updateParam('serverHeight', parseFloat(e.target.value))}
+          value={params.playerHeight}
+          onChange={(e) => updateParam('playerHeight', parseFloat(e.target.value))}
           className="w-full"
         />
+        <div className="text-xs text-gray-500 mt-1">
+          Contact Height: {params.serverHeight.toFixed(1)} ft
+        </div>
       </div>
 
       {/* Initial Velocity */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Initial Velocity: {params.initialVelocity} mph
+          Initial Velocity: <span className="font-bold text-blue-600">{params.initialVelocity} mph</span>
         </label>
         <input
           type="range"
-          min="60"
-          max="140"
+          min="50"
+          max="150"
           step="1"
           value={params.initialVelocity}
           onChange={(e) => updateParam('initialVelocity', parseInt(e.target.value))}

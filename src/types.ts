@@ -5,7 +5,8 @@ export interface Vector3D {
 }
 
 export interface SimulationParams {
-  serverHeight: number; // feet
+  playerHeight: number; // feet - actual player height
+  serverHeight: number; // feet - calculated contact height (derived from playerHeight)
   initialVelocity: number; // mph
   topspinRpm: number;
   topspinPlane: number; // degrees

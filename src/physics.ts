@@ -3,10 +3,10 @@ import { Vector3D, BallState, SimulationParams } from "./types";
 // Constants
 const GRAVITY = 32.174; // ft/s²
 const BALL_MASS = 0.125; // lb (tennis ball)
-const BALL_RADIUS = 0.1067; // ft (tennis ball radius)
+const BALL_RADIUS = 0.11; // ft (tennis ball radius)
 
 export class PhysicsEngine {
-  private dt = 1 / 120; // 120 FPS simulation
+  private dt = 1 / 240; // 240 FPS simulation
 
   mphToFtPerSec(mph: number): number {
     return mph * 1.467;
