@@ -1,5 +1,5 @@
-import React from 'react';
-import { SimulationParams } from '../types';
+import React from "react";
+import { SimulationParams } from "../types";
 
 interface ControlPanelProps {
   params: SimulationParams;
@@ -22,7 +22,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onStepForward,
   onStepBackward,
   isRunning,
-  isPaused
+  isPaused,
 }) => {
   const updateParam = (key: keyof SimulationParams, value: any) => {
     onParamsChange({ ...params, [key]: value });
@@ -31,7 +31,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   return (
     <div className="bg-white p-4 rounded-lg shadow-lg space-y-3">
       <h2 className="text-xl font-bold mb-3">Tennis Serve Simulator</h2>
-      
+
       {/* Player Height */}
       <div>
         <label className="block text-sm font-medium mb-1">
@@ -43,7 +43,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           max="7.5"
           step="0.1"
           value={params.playerHeight}
-          onChange={(e) => updateParam('playerHeight', parseFloat(e.target.value))}
+          onChange={(e) =>
+            updateParam("playerHeight", parseFloat(e.target.value))
+          }
           className="w-full"
         />
         <div className="text-xs text-gray-500 mt-1">
@@ -54,7 +56,10 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {/* Initial Velocity */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Initial Velocity: <span className="font-bold text-blue-600">{params.initialVelocity} mph</span>
+          Initial Velocity:{" "}
+          <span className="font-bold text-blue-600">
+            {params.initialVelocity} mph
+          </span>
         </label>
         <input
           type="range"
@@ -62,41 +67,53 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           max="150"
           step="1"
           value={params.initialVelocity}
-          onChange={(e) => updateParam('initialVelocity', parseInt(e.target.value))}
+          onChange={(e) =>
+            updateParam("initialVelocity", parseInt(e.target.value))
+          }
           className="w-full"
         />
       </div>
 
-      {/* Topspin RPM */}
+      {/* Spin RPM */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Topspin: {params.topspinRpm} RPM
+          Spin: {params.topspinRpm} RPM
         </label>
         <input
           type="range"
-          min="0"
+          min="-5000"
           max="5000"
           step="100"
           value={params.topspinRpm}
-          onChange={(e) => updateParam('topspinRpm', parseInt(e.target.value))}
+          onChange={(e) => updateParam("topspinRpm", parseInt(e.target.value))}
           className="w-full"
         />
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>Topspin</span>
+          <span>Underspin</span>
+        </div>
       </div>
 
       {/* Topspin Plane */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Topspin Plane: {params.topspinPlane}°
+          Spin Plane: {params.topspinPlane}°
         </label>
         <input
           type="range"
-          min="-90"
+          min="0"
           max="90"
           step="5"
           value={params.topspinPlane}
-          onChange={(e) => updateParam('topspinPlane', parseInt(e.target.value))}
+          onChange={(e) =>
+            updateParam("topspinPlane", parseInt(e.target.value))
+          }
           className="w-full"
         />
+        <div className="flex justify-between text-xs text-gray-500 mt-1">
+          <span>Pure Topspin/Underspin</span>
+          <span>Pure Sidespin</span>
+        </div>
       </div>
 
       {/* Initial Direction */}
@@ -110,7 +127,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           max="30"
           step="1"
           value={params.initialDirection}
-          onChange={(e) => updateParam('initialDirection', parseInt(e.target.value))}
+          onChange={(e) =>
+            updateParam("initialDirection", parseInt(e.target.value))
+          }
           className="w-full"
         />
       </div>
@@ -118,7 +137,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {/* Initial Vertical Angle */}
       <div>
         <label className="block text-sm font-medium mb-1">
-          Vertical Angle: {params.initialVerticalAngle}° {params.initialVerticalAngle > 0 ? '(up)' : params.initialVerticalAngle < 0 ? '(down)' : '(level)'}
+          Vertical Angle: {params.initialVerticalAngle}°{" "}
+          {params.initialVerticalAngle > 0
+            ? "(up)"
+            : params.initialVerticalAngle < 0
+              ? "(down)"
+              : "(level)"}
         </label>
         <input
           type="range"
@@ -126,17 +150,17 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           max="15"
           step="1"
           value={params.initialVerticalAngle}
-          onChange={(e) => updateParam('initialVerticalAngle', parseInt(e.target.value))}
+          onChange={(e) =>
+            updateParam("initialVerticalAngle", parseInt(e.target.value))
+          }
           className="w-full"
         />
       </div>
 
-
-
       {/* Physics Coefficients */}
       <div className="space-y-3">
         <h3 className="font-medium">Physics Coefficients:</h3>
-        
+
         {/* Air Density */}
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -148,7 +172,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             max="0.12"
             step="0.001"
             value={params.airDensity}
-            onChange={(e) => updateParam('airDensity', parseFloat(e.target.value))}
+            onChange={(e) =>
+              updateParam("airDensity", parseFloat(e.target.value))
+            }
             className="w-full"
           />
           <div className="text-xs text-gray-500 mt-1">
@@ -167,7 +193,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             max="1.0"
             step="0.01"
             value={params.dragCoefficient}
-            onChange={(e) => updateParam('dragCoefficient', parseFloat(e.target.value))}
+            onChange={(e) =>
+              updateParam("dragCoefficient", parseFloat(e.target.value))
+            }
             className="w-full"
           />
           <div className="text-xs text-gray-500 mt-1">
@@ -186,7 +214,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             max="0.3"
             step="0.01"
             value={params.magnusCoefficient}
-            onChange={(e) => updateParam('magnusCoefficient', parseFloat(e.target.value))}
+            onChange={(e) =>
+              updateParam("magnusCoefficient", parseFloat(e.target.value))
+            }
             className="w-full"
           />
           <div className="text-xs text-gray-500 mt-1">
@@ -198,30 +228,30 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {/* Physics Effects */}
       <div className="space-y-2">
         <h3 className="font-medium">Physics Effects:</h3>
-        
+
         <label className="flex items-center space-x-2">
           <input
             type="checkbox"
             checked={params.enableGravity}
-            onChange={(e) => updateParam('enableGravity', e.target.checked)}
+            onChange={(e) => updateParam("enableGravity", e.target.checked)}
           />
           <span>Gravity</span>
         </label>
-        
+
         <label className="flex items-center space-x-2">
           <input
             type="checkbox"
             checked={params.enableDrag}
-            onChange={(e) => updateParam('enableDrag', e.target.checked)}
+            onChange={(e) => updateParam("enableDrag", e.target.checked)}
           />
           <span>Air Drag</span>
         </label>
-        
+
         <label className="flex items-center space-x-2">
           <input
             type="checkbox"
             checked={params.enableMagnus}
-            onChange={(e) => updateParam('enableMagnus', e.target.checked)}
+            onChange={(e) => updateParam("enableMagnus", e.target.checked)}
           />
           <span>Magnus Effect</span>
         </label>
@@ -230,7 +260,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {/* Playback Controls */}
       <div className="space-y-3">
         <h3 className="font-medium">Playback Controls:</h3>
-        
+
         {/* Animation Speed */}
         <div>
           <label className="block text-sm font-medium mb-1">
@@ -242,7 +272,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             max="1"
             step="0.01"
             value={params.animationSpeed}
-            onChange={(e) => updateParam('animationSpeed', parseFloat(e.target.value))}
+            onChange={(e) =>
+              updateParam("animationSpeed", parseFloat(e.target.value))
+            }
             className="w-full"
           />
         </div>
@@ -257,19 +289,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           >
             ⏪
           </button>
-          
+
           <button
             onClick={isRunning ? onStop : onStart}
             title={isRunning ? "Pause" : "Play"}
             className={`w-12 h-12 rounded font-medium text-xl flex items-center justify-center ${
-              isRunning 
-                ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-                : 'bg-green-500 hover:bg-green-600 text-white'
+              isRunning
+                ? "bg-orange-500 hover:bg-orange-600 text-white"
+                : "bg-green-500 hover:bg-green-600 text-white"
             }`}
           >
-            {isRunning ? '⏸️' : '▶️'}
+            {isRunning ? "⏸️" : "▶️"}
           </button>
-          
+
           <button
             onClick={onStepForward}
             disabled={isRunning}
@@ -278,7 +310,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
           >
             ⏩
           </button>
-          
+
           <button
             onClick={onReset}
             title="Reset Simulation"
@@ -287,7 +319,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             🔄
           </button>
         </div>
-        
+
         <div className="text-xs text-gray-500 text-center">
           Step size: 0.01 seconds
         </div>

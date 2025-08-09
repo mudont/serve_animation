@@ -21,9 +21,9 @@ const App: React.FC = () => {
   const [params, setParamsInternal] = useState<SimulationParams>({
     playerHeight: 6.0, // Default 6ft player
     serverHeight: calculateContactHeight(6.0), // 8.5ft contact height
-    initialVelocity: 100,
-    topspinRpm: 2000,
-    topspinPlane: 45,
+    initialVelocity: 90,
+    topspinRpm: -2000,
+    topspinPlane: 30,
     initialDirection: 0,
     initialVerticalAngle: -3,
     animationSpeed: 0.5,
@@ -333,6 +333,7 @@ const App: React.FC = () => {
                   isServing ? Math.min(ballState?.time || 0, 0.3) / 0.3 : 0
                 }
                 isServing={isServing}
+                params={params}
               />
             </div>
           </div>

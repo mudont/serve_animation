@@ -41,7 +41,29 @@ export const StickFigurePlayer: React.FC<StickFigurePlayerProps> = ({
     
     // Serving motion
     const t = serveProgress;
-    const armSwing = Math.sin(t * Math.PI);
+    
+    // Realistic serve motion with forward swing and follow-through
+    let armSwing, racquetHeight, racquetForward;
+    
+    if (t < 0.6) {
+      // Toss phase: racquet goes up and back (preparation)
+      armSwing = t / 0.6; // Linear rise to full extension
+      racquetHeight = armSwing;
+      racquetForward = -0.3 * armSwing; // Slight backward motion during toss
+    } else if (t < 0.9) {
+      // Contact phase: racquet moves forward and up for contact
+      const contactPhase = (t - 0.6) / 0.3; // 0 to 1 over contact phase
+      armSwing = 1.0; // Stay at full extension
+      racquetHeight = 1.0 + contactPhase * 0.3; // Reach up for contact
+      racquetForward = -0.3 + contactPhase * 1.0; // Move forward for contact
+    } else {
+      // Follow-through phase: racquet comes down and forward
+      const followPhase = (t - 0.9) / 0.1; // 0 to 1 over follow-through
+      armSwing = 1.0 - followPhase * 0.5; // Start coming down
+      racquetHeight = 1.3 - followPhase * 0.8; // Come down from peak
+      racquetForward = 0.7 + followPhase * 0.5; // Continue forward and down
+    }
+    
     const bodyLean = t * 0.5;
     
     return {
@@ -51,16 +73,16 @@ export const StickFigurePlayer: React.FC<StickFigurePlayerProps> = ({
       leftShoulder: project3D(playerX - 0.5 + bodyLean, 5, playerZ),
       rightShoulder: project3D(playerX + 0.5 + bodyLean, 5 + armSwing * 0.5, playerZ),
       leftElbow: project3D(playerX - 0.8 + bodyLean, 4, playerZ),
-      rightElbow: project3D(playerX + 0.8 + bodyLean, 4.5 + armSwing, playerZ),
+      rightElbow: project3D(playerX + 0.8 + bodyLean + racquetForward * 0.5, 4.5 + armSwing, playerZ),
       leftHand: project3D(playerX - 1 + bodyLean, 3.5, playerZ),
-      rightHand: project3D(playerX + 1 + bodyLean, 4 + armSwing * 1.5, playerZ),
+      rightHand: project3D(playerX + 1 + bodyLean + racquetForward * 0.8, 4 + racquetHeight * 1.5, playerZ),
       leftHip: project3D(playerX - 0.3 + bodyLean, 3, playerZ),
       rightHip: project3D(playerX + 0.3 + bodyLean, 3, playerZ),
       leftKnee: project3D(playerX - 0.3 + bodyLean, 1.5, playerZ),
       rightKnee: project3D(playerX + 0.3 + bodyLean, 1.5, playerZ),
       leftFoot: project3D(playerX - 0.3 + bodyLean, 0, playerZ),
       rightFoot: project3D(playerX + 0.3 + bodyLean, 0, playerZ),
-      racquet: project3D(playerX + 1.2 + bodyLean, 4.5 + armSwing * 1.8, playerZ - 0.3)
+      racquet: project3D(playerX + 1.2 + bodyLean + racquetForward, 4.5 + racquetHeight * 1.8, playerZ - 0.3)
     };
   };
   

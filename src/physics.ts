@@ -122,14 +122,23 @@ export class PhysicsEngine {
 
     // Tennis court constants
     const NET_POSITION_X = 39; // Net is at center of 78ft court
-    const NET_HEIGHT = 3; // 3 feet high
+    const NET_HEIGHT_CENTER = 3; // 3 feet high at center
+    const NET_HEIGHT_ENDS = 3.5; // 3.5 feet high at ends
     const COURT_WIDTH = 27; // Singles court width
+    
+    // Function to calculate net height at any lateral position
+    const getNetHeight = (z: number): number => {
+      const distanceFromCenter = Math.abs(z);
+      const maxDistance = COURT_WIDTH / 2;
+      const heightDifference = NET_HEIGHT_ENDS - NET_HEIGHT_CENTER;
+      return NET_HEIGHT_CENTER + (distanceFromCenter / maxDistance) * heightDifference;
+    };
 
     // Check for net collision
     if (
       state.position.x < NET_POSITION_X &&
       newPosition.x >= NET_POSITION_X &&
-      newPosition.y <= NET_HEIGHT &&
+      newPosition.y <= getNetHeight(newPosition.z) &&
       Math.abs(newPosition.z) <= COURT_WIDTH / 2
     ) {
       hitNet = true;
@@ -232,9 +241,9 @@ export class PhysicsEngine {
         z: vz, // Lateral velocity (left/right)
       },
       spin: {
-        x: spinRad * Math.cos(spinPlaneRad),
-        y: 0,
-        z: spinRad * Math.sin(spinPlaneRad),
+        x: 0, // No rotation around forward/back axis
+        y: spinRad * Math.sin(spinPlaneRad), // Sidespin (rotation around vertical axis)
+        z: spinRad * Math.cos(spinPlaneRad), // Topspin (rotation around lateral axis)
       },
       time: 0,
       hasServed: false,

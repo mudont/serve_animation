@@ -1,5 +1,5 @@
 import React from "react";
-import { Vector3D, BouncePoint, NetHit } from "../types";
+import { Vector3D, BouncePoint, NetHit, SimulationParams } from "../types";
 import { StickFigurePlayer } from "./StickFigurePlayer";
 
 interface TennisCourt3DProps {
@@ -9,6 +9,7 @@ interface TennisCourt3DProps {
   netHit: NetHit | null;
   serveProgress: number;
   isServing: boolean;
+  params: SimulationParams;
 }
 
 export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
@@ -18,6 +19,7 @@ export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
   netHit,
   serveProgress,
   isServing,
+  params,
 }) => {
   // Responsive dimensions - use viewBox for scaling
   const viewBoxWidth = 1000;
@@ -60,8 +62,8 @@ export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
     const cos35 = Math.cos(Math.atan(Math.sqrt(2)));
     const sin35 = Math.sin(Math.atan(Math.sqrt(2)));
 
-    // Scale Y (height) by 1.5x for better visibility
-    const scaledY = y * 1.5;
+    // Scale Y (height) by > 1.0 for better visibility
+    const scaledY = y * 1.0;
 
     // Apply isometric transformation
     const isoX = (x * cos30 - z * cos30) * scale;
@@ -81,7 +83,8 @@ export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
   const baselineToBaseline = 78;
   const singlesSideline = 27;
   const serviceLineDistance = 21;
-  const netHeight = 3;
+  const netHeightCenter = 3;
+  const netHeightEnds = 3.5;
 
   // Court corners (ground level, y=0)
   const corners = [
@@ -91,19 +94,22 @@ export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
     project3D(baselineToBaseline, 0, -singlesSideline / 2),
   ];
 
-  // Net posts
+  // Net posts (at the ends, higher)
   const netPost1 = project3D(
     baselineToBaseline / 2,
-    netHeight,
+    netHeightEnds,
     -singlesSideline / 2
   );
   const netPost2 = project3D(
     baselineToBaseline / 2,
-    netHeight,
+    netHeightEnds,
     singlesSideline / 2
   );
   const netBottom1 = project3D(baselineToBaseline / 2, 0, -singlesSideline / 2);
   const netBottom2 = project3D(baselineToBaseline / 2, 0, singlesSideline / 2);
+
+  // Net center point (lower)
+  const netCenter = project3D(baselineToBaseline / 2, netHeightCenter, 0);
 
   // Ball position
   const ballProj = project3D(ballPosition.x, ballPosition.y, ballPosition.z);
@@ -231,13 +237,11 @@ export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
           y2={netPost2.y}
         />
 
-        {/* Net top */}
-        <line
-          x1={netPost1.x}
-          y1={netPost1.y}
-          x2={netPost2.x}
-          y2={netPost2.y}
+        {/* Net top - curved from 3.5ft at ends to 3ft at center */}
+        <path
+          d={`M ${netPost1.x} ${netPost1.y} Q ${netCenter.x} ${netCenter.y} ${netPost2.x} ${netPost2.y}`}
           strokeWidth="3"
+          fill="none"
         />
 
         {/* Net mesh */}
@@ -247,18 +251,28 @@ export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
             x: netBottom1.x + t * (netBottom2.x - netBottom1.x),
             y: netBottom1.y + t * (netBottom2.y - netBottom1.y),
           };
-          const meshEnd = {
-            x: netPost1.x + t * (netPost2.x - netPost1.x),
-            y: netPost1.y + t * (netPost2.y - netPost1.y),
-          };
+
+          // Calculate curved top point for mesh
+          const lateralPos = -singlesSideline / 2 + t * singlesSideline;
+          const distanceFromCenter = Math.abs(lateralPos);
+          const maxDistance = singlesSideline / 2;
+          const heightAtPosition =
+            netHeightCenter +
+            (distanceFromCenter / maxDistance) *
+              (netHeightEnds - netHeightCenter);
+          const meshTopPoint = project3D(
+            baselineToBaseline / 2,
+            heightAtPosition,
+            lateralPos
+          );
 
           return (
             <line
               key={i}
               x1={meshStart.x}
               y1={meshStart.y}
-              x2={meshEnd.x}
-              y2={meshEnd.y}
+              x2={meshTopPoint.x}
+              y2={meshTopPoint.y}
               stroke="gray"
               strokeWidth="1"
               opacity="0.5"
@@ -311,6 +325,109 @@ export const TennisCourt3D: React.FC<TennisCourt3DProps> = ({
         stroke="black"
         strokeWidth="1"
       />
+
+      {/* Ball Spin Visualization */}
+      {params.topspinRpm !== 0 && (
+        <g>
+          {/* Spin axis indicator */}
+          {(() => {
+            const spinPlaneRad = (params.topspinPlane * Math.PI) / 180;
+            const axisLength = 20;
+
+            // Calculate spin axis direction in 3D space
+            // 0° = pure topspin (rotation around Z-axis, lateral/baseline axis)
+            // 90° = pure sidespin (rotation around Y-axis, vertical axis)
+            const axisY = Math.sin(spinPlaneRad); // Vertical component for sidespin
+            const axisZ = Math.cos(spinPlaneRad); // Lateral component for topspin
+
+            // Project the spin axis to screen coordinates
+            const axisStart = project3D(
+              ballPosition.x,
+              ballPosition.y - axisY * 0.5,
+              ballPosition.z - axisZ * 0.5
+            );
+            const axisEnd = project3D(
+              ballPosition.x,
+              ballPosition.y + axisY * 0.5,
+              ballPosition.z + axisZ * 0.5
+            );
+
+            return (
+              <>
+                {/* Spin axis line */}
+                <line
+                  x1={axisStart.x}
+                  y1={axisStart.y}
+                  x2={axisEnd.x}
+                  y2={axisEnd.y}
+                  stroke="red"
+                  strokeWidth="3"
+                  opacity="0.8"
+                />
+
+                {/* Arrow heads to show rotation direction */}
+                <g stroke="red" fill="red" opacity="0.8">
+                  <polygon
+                    points={`${axisEnd.x},${axisEnd.y} ${axisEnd.x - 5},${axisEnd.y - 3} ${axisEnd.x - 5},${axisEnd.y + 3}`}
+                  />
+                </g>
+
+                {/* Rotation arc to show spin direction */}
+                <g stroke="orange" strokeWidth="2" fill="none" opacity="0.7">
+                  <circle
+                    cx={ballProj.x}
+                    cy={ballProj.y}
+                    r="12"
+                    strokeDasharray="3,2"
+                  />
+                  {/* Small arrows on the arc to show rotation direction */}
+                  <polygon
+                    points={`${ballProj.x + 12},${ballProj.y} ${ballProj.x + 9},${ballProj.y - 3} ${ballProj.x + 9},${ballProj.y + 3}`}
+                    fill="orange"
+                  />
+                </g>
+
+                {/* Label showing spin type */}
+                <text
+                  x={ballProj.x + 25}
+                  y={ballProj.y - 10}
+                  fontSize="10"
+                  fill="red"
+                  fontWeight="bold"
+                >
+                  {(() => {
+                    const spinType =
+                      params.topspinPlane === 0
+                        ? "Pure"
+                        : params.topspinPlane === 90
+                          ? "Pure Sidespin"
+                          : params.topspinPlane < 45
+                            ? "Mixed"
+                            : "Mixed";
+                    const spinDirection =
+                      params.topspinRpm > 0
+                        ? params.topspinPlane === 0
+                          ? "Underspin"
+                          : spinType
+                        : params.topspinPlane === 0
+                          ? "Topspin"
+                          : spinType;
+                    return spinDirection;
+                  })()}
+                </text>
+                <text
+                  x={ballProj.x + 25}
+                  y={ballProj.y + 5}
+                  fontSize="8"
+                  fill="red"
+                >
+                  {params.topspinRpm} RPM @ {params.topspinPlane}°
+                </text>
+              </>
+            );
+          })()}
+        </g>
+      )}
 
       {/* Bounce marks on court */}
       {bouncePoints.map((bounce, index) => {
